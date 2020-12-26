@@ -11,4 +11,4 @@ def update():
 
 
 def show_love():
-    print('I love qianqian', time.strftime("%H:%M:%S", time.localtime()))
+    print('I love you', time.strftime("%H:%M:%S", time.localtime()))
