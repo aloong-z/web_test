@@ -12,9 +12,18 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 
+import logging
+import django.utils.log
+import logging.handlers
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+log_path = os.path.join(BASE_DIR, "logs")
+
+if not os.path.exists(log_path):
+    os.makedirs("logs")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -26,7 +35,6 @@ SECRET_KEY = '^s$vqrk6!vx#$1)u2@7-*pf29gv*2zky9z-o=zn$k%n+z29hr6'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -70,7 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DjangoApscheduler.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -80,7 +87,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -100,7 +106,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -114,8 +119,63 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s]- %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'all.log'),  # 或者直接写路径：'c:\logs\all.log'
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'debug.log'),  # 或者直接写路径：'c:\logs\all.log'
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+    },
+    # DEBUG(测试环境) CRITICAL(项目崩溃)  ERROR(抛出异常未被捕获) WARNING(例如403) INFO(系统表现相关)
+    'loggers': {
+        'print': {
+            'handlers': ["file"],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'ifacerecognition': {
+            'handlers': ['default'],
+            'level': 'ERROR',
+        },
+        'django.request': {
+            'handlers': ['default'],
+            'level': 'ERROR',
+        },
+    },
+}
